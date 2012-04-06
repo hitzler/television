@@ -15,7 +15,7 @@ class Series(models.Model):
     title   = models.CharField(max_length=255)
     slug    = models.SlugField(max_length=255)
     genres  = models.ManyToManyField('Genre')
-    airDay  = models.CharField(max_length=2, choices=DAY_CHOICES)
+    airDay  = models.CharField(max_length=3, choices=DAY_CHOICES)
     seasons = models.IntegerField()
     network = models.ForeignKey('Network')
     locked  = models.BooleanField(default=False)
