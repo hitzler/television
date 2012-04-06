@@ -25,6 +25,15 @@ class Series(models.Model):
     # Series Status
     # Series Air Time
     # Series Country
+class Episode(models.Model):
+    series  = models.ForeignKey('Series')
+    title   = models.CharField(max_length=255)
+    slug    = models.SlugField(max_length=255)
+    season  = models.IntegerField(default=0)
+    episode = models.IntegerField(default=0)
+
+    def __unicode__(self):
+        return u'%s S%02dE%02d - %s' % (self.series, self.season, self.episode, self.title)
 
 class Genre(models.Model):
     title = models.CharField(max_length=70)
