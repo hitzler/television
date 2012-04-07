@@ -25,6 +25,9 @@ class Series(models.Model):
     # Series Status
     # Series Air Time
     # Series Country
+    class Meta:
+        verbose_name_plural = 'Series'
+
 class Episode(models.Model):
     series  = models.ForeignKey('Series')
     title   = models.CharField(max_length=255)
