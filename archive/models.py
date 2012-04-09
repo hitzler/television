@@ -11,6 +11,7 @@ DAY_CHOICES = (
     ('WEK', 'Weekdays'),
     ('DAL', 'Daily')
 )
+SERIES_CHOICES = (('RUN', 'Running'),('END', 'Ended'),)
 
 class Series(models.Model):
     title   = models.CharField(max_length=255)
@@ -21,12 +22,15 @@ class Series(models.Model):
     airTime = models.TimeField(verbose_name='Time Aired')
     seasons = models.IntegerField()
     network = models.ForeignKey('Network')
+    status  = models.CharField(max_length=3, choices=SERIES_CHOICES)
     locked  = models.BooleanField(default=False)
-    locker  = models.ForeignKey(User, verbose_name='Locked By')
-    # Series Status
+    locker  = models.ForeignKey(User, blank=True, null=True, verbose_name='Locked By')
+
     # Series Country
     class Meta:
         verbose_name_plural = 'Series'
+    def __unicode__(self):
+        return u'%s' % self.title
 
 class Episode(models.Model):
     series  = models.ForeignKey('Series')
@@ -45,11 +49,16 @@ class Genre(models.Model):
     title = models.CharField(max_length=70)
     slug  = models.CharField(max_length=70)
 
+    def __unicode__(self):
+        return u'%s' % self.title
+
 class Network(models.Model):
     title = models.CharField(max_length=70)
     slug  = models.CharField(max_length=70)
     # Country
 
+    def __unicode__(self):
+        return u'%s' % self.title
 
 
 

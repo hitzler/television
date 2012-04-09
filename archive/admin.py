@@ -30,7 +30,7 @@ class NetworkAdmin(admin.ModelAdmin):
 
 class GenreAdmin(admin.ModelAdmin):
     list_display = ['title']
-
+    prepopulated_fields =  {'slug': ['title']}
 
 
 admin.site.register(Series, SeriesAdmin)
