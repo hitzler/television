@@ -2,6 +2,18 @@ from archive.models import *
 from django.contrib import admin
 
 class SeriesAdmin(admin.ModelAdmin):
+    fieldsets = (
+        ('General Information', {
+            'fields': ('title', 'slug', 'network', 'genres', )
+        }),
+        ('Airing Information', {
+            'fields': ('premier', ('airDay', 'airTime'))
+        }),
+        ('Lock Options', {
+            'classes': ('collapse',),
+            'fields':  (('locked', 'locker'),)
+        }),
+    )
     list_display  = ['title', 'network']
     search_fields = ['title']
     prepopulated_fields =  {'slug': ['title']}
