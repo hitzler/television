@@ -1,5 +1,7 @@
 from django.db import models
+from django_countries import CountryField
 from django.contrib.auth.admin import User
+
 DAY_CHOICES = (
     ('MON', 'Monday'),
     ('TUE', 'Tuesday'),
@@ -22,11 +24,11 @@ class Series(models.Model):
     airTime = models.TimeField(verbose_name='Time Aired')
     seasons = models.IntegerField()
     network = models.ForeignKey('Network')
+    country = CountryField()
     status  = models.CharField(max_length=3, choices=SERIES_CHOICES)
     locked  = models.BooleanField(default=False)
     locker  = models.ForeignKey(User, blank=True, null=True, verbose_name='Locked By')
 
-    # Series Country
     class Meta:
         verbose_name_plural = 'Series'
     def __unicode__(self):
@@ -53,9 +55,9 @@ class Genre(models.Model):
         return u'%s' % self.title
 
 class Network(models.Model):
-    title = models.CharField(max_length=70)
-    slug  = models.CharField(max_length=70)
-    # Country
+    title   = models.CharField(max_length=70)
+    slug    = models.CharField(max_length=70)
+    country = CountryField()
 
     def __unicode__(self):
         return u'%s' % self.title

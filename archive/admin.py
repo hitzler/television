@@ -4,7 +4,7 @@ from django.contrib import admin
 class SeriesAdmin(admin.ModelAdmin):
     fieldsets = (
         ('General Information', {
-            'fields': ('title', 'slug', 'network', 'genres', )
+            'fields': ('title', 'slug', 'network', 'country', 'genres', )
         }),
         ('Airing Information', {
             'fields': ('premier', ('airDay', 'airTime'))
@@ -24,7 +24,7 @@ class EpisodeAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ['title']}
 
 class NetworkAdmin(admin.ModelAdmin):
-    list_display  = ['title']#, 'country']
+    list_display  = ['title', 'country']
     search_fields = ['title']
     prepopulated_fields = {'slug': ['title']}
 
