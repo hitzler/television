@@ -4,7 +4,7 @@ from django.contrib import admin
 class SeriesAdmin(admin.ModelAdmin):
     fieldsets = (
         ('General Information', {
-            'fields': ('title', 'slug', 'network', 'country', 'genres', )
+            'fields': ('title', 'slug', 'network', 'country', 'language', 'genres')
         }),
         ('Airing Information', {
             'fields': ('premier', ('airDay', 'airTime'))
@@ -34,6 +34,7 @@ class GenreAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Series, SeriesAdmin)
+admin.site.register(Season)
 admin.site.register(Episode, EpisodeAdmin)
 admin.site.register(Network, NetworkAdmin)
 admin.site.register(Genre, GenreAdmin)
