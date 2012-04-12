@@ -4,17 +4,17 @@ from django.conf.global_settings import LANGUAGES
 from django.contrib.auth.admin import User
 
 DAY_CHOICES = (
-    ('MON', 'Monday'),
-    ('TUE', 'Tuesday'),
-    ('WED', 'Wednesday'),
-    ('THU', 'Thursday'),
-    ('FRI', 'Friday'),
-    ('SAT', 'Saturday'),
-    ('SUN', 'Sunday'),
-    ('WEK', 'Weekdays'),
-    ('DAL', 'Daily')
+    (u'MON', u'Monday'),
+    (u'TUE', u'Tuesday'),
+    (u'WED', u'Wednesday'),
+    (u'THU', u'Thursday'),
+    (u'FRI', u'Friday'),
+    (u'SAT', u'Saturday'),
+    (u'SUN', u'Sunday'),
+    (u'WEK', u'Weekdays'),
+    (u'DAL', u'Daily')
 )
-SERIES_CHOICES = (('RUN', 'Running'),('END', 'Ended'),)
+SERIES_CHOICES = ((u'RUN', u'Running'),(u'END', u'Ended'),)
 
 class Series(models.Model):
     title    = models.CharField(max_length=255)
@@ -25,7 +25,7 @@ class Series(models.Model):
     airTime  = models.TimeField(verbose_name='Time Aired')
     network  = models.ForeignKey('Network')
     country  = CountryField()
-    language = models.CharField(max_length=4, choices=LANGUAGES)
+    language = models.CharField(max_length=7, choices=LANGUAGES)
     status   = models.CharField(max_length=3, choices=SERIES_CHOICES)
     locked   = models.BooleanField(default=False)
     locker   = models.ForeignKey(User, blank=True, null=True, verbose_name='Locked By')

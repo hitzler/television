@@ -1,0 +1,8 @@
+<html>
+{{ series.title }}<br />
+Episodes<br />
+{% for episodes in series.episode_set.all %}
+    {{ episodes }}
+{% endfor %}
+
+</html>
