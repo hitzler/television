@@ -73,17 +73,20 @@ class Network(models.Model):
     def __unicode__(self):
         return u'%s' % self.title
 
+class Person(models.Model):
+    name  = models.CharField(max_length=128)
+    slug  = models.SlugField(max_length=128)
+    birth = models.DateField()
+    death = models.DateField(blank=True, null=True)
 
 
-
-
-
-
-
-
-
-
-
+class Role(models.Model):
+    name   = models.CharField(max_length=128)
+    slug   = models.SlugField(max_length=128)
+    actor  = models.ForeignKey('Person')
+    series = models.ForeignKey('Series')
+    start  = models.DateField(verbose_name='First Appearance')
+    end    = models.DateField(verbose_name='Last Appearance')
 
 
 
