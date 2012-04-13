@@ -15,6 +15,7 @@ DAY_CHOICES = (
     (u'DAL', u'Daily')
 )
 SERIES_CHOICES = ((u'RUN', u'Running'),(u'END', u'Ended'),)
+GENDER_CHOICES = ((u'M', u'Male'), (u'F', u'Female'))
 
 class Series(models.Model):
     title    = models.CharField(max_length=255)
@@ -49,7 +50,6 @@ class Episode(models.Model):
     title   = models.CharField(max_length=255)
     slug    = models.SlugField(max_length=255)
     season  = models.ForeignKey('Season', limit_choices_to={'series': '1'})
-#    season  = models.IntegerField(default=0)
     episode = models.IntegerField(default=0)
     airDate = models.DateField()
 
@@ -74,10 +74,11 @@ class Network(models.Model):
         return u'%s' % self.title
 
 class Person(models.Model):
-    name  = models.CharField(max_length=128)
-    slug  = models.SlugField(max_length=128)
-    birth = models.DateField()
-    death = models.DateField(blank=True, null=True)
+    name   = models.CharField(max_length=128)
+    slug   = models.SlugField(max_length=128)
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
+    birth  = models.DateField()
+    death  = models.DateField(blank=True, null=True)
 
 
 class Role(models.Model):
