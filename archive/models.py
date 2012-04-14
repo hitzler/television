@@ -1,4 +1,5 @@
-import os, shutil
+import os
+import shutil
 from django.db import models
 from django_countries import CountryField
 from django.conf.global_settings import LANGUAGES
@@ -18,9 +19,11 @@ DAY_CHOICES = (
     (u'WEK', u'Weekdays'),
     (u'DAL', u'Daily')
 )
-SERIES_CHOICES = ((u'RUN', u'Running'),(u'END', u'Ended'),)
+SERIES_CHOICES = ((u'RUN', u'Running'), (u'END', u'Ended'))
 GENDER_CHOICES = ((u'M', u'Male'), (u'F', u'Female'))
 IMAGE_CHOICES  = ((u'1', 'poster'), (u'2', 'fanart'), (u'3', 'photo'))
+
+
 class Series(models.Model):
     title    = models.CharField(max_length=255)
     slug     = models.SlugField(max_length=255)
@@ -38,8 +41,10 @@ class Series(models.Model):
 
     class Meta:
         verbose_name_plural = 'Series'
+
     def __unicode__(self):
         return u'%s' % self.title
+
 
 class Season(models.Model):
     series = models.ForeignKey('Series')
@@ -51,6 +56,7 @@ class Season(models.Model):
     def __unicode__(self):
         return u'%s - Season %02d' % (self.series, self.season)
 
+
 class Episode(models.Model):
     series  = models.ForeignKey('Series')
     title   = models.CharField(max_length=255)
@@ -61,8 +67,10 @@ class Episode(models.Model):
 
     class Meta:
         unique_together = ('series', 'airDate', 'title')
+
     def __unicode__(self):
         return u'%s S%02dE%02d - %s' % (self.series, self.season.season, self.episode, self.title)
+
 
 class Genre(models.Model):
     title = models.CharField(max_length=70)
@@ -71,6 +79,7 @@ class Genre(models.Model):
     def __unicode__(self):
         return u'%s' % self.title
 
+
 class Network(models.Model):
     title   = models.CharField(max_length=70)
     slug    = models.CharField(max_length=70)
@@ -78,6 +87,7 @@ class Network(models.Model):
 
     def __unicode__(self):
         return u'%s' % self.title
+
 
 class Person(models.Model):
     name   = models.CharField(max_length=128)
@@ -94,6 +104,7 @@ class Role(models.Model):
     series = models.ForeignKey('Series')
     start  = models.DateField(verbose_name='First Appearance')
     end    = models.DateField(verbose_name='Last Appearance')
+
 
 class Image(models.Model):
     image          = models.ImageField(upload_to='images/',)
