@@ -96,6 +96,7 @@ class Role(models.Model):
 
 class Image(models.Model):
     image          = models.ImageField(upload_to='/')
+    # Slug
     content_type   = models.ForeignKey(ContentType)
     object_id      = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey()

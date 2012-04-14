@@ -32,7 +32,7 @@ class GenreAdmin(admin.ModelAdmin):
     list_display = ['title']
     prepopulated_fields =  {'slug': ['title']}
 
-
+#
 admin.site.register(Series, SeriesAdmin)
 admin.site.register(Season)
 admin.site.register(Image)
