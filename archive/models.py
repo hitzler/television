@@ -95,8 +95,14 @@ class Role(models.Model):
     end    = models.DateField(verbose_name='Last Appearance')
 
 class Image(models.Model):
-    image          = models.ImageField(upload_to='/')
-    # Slug
+    image          = models.ImageField(upload_to='./',)
+    #uploader       = models.ForeignKey(User, verbose_name='Uploaded By')
     content_type   = models.ForeignKey(ContentType)
     object_id      = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey()
+
+    def save(self, *args, **kwargs):
+        # blah blah post save rename and move image farts farts farts
+
+    def __unicode__(self):
+        return u'%s - %s' % (self.content_object, self.image.name)
