@@ -35,6 +35,7 @@ class GenreAdmin(admin.ModelAdmin):
 
 admin.site.register(Series, SeriesAdmin)
 admin.site.register(Season)
+admin.site.register(Image)
 admin.site.register(Episode, EpisodeAdmin)
 admin.site.register(Network, NetworkAdmin)
 admin.site.register(Genre, GenreAdmin)

@@ -3,6 +3,9 @@ from django_countries import CountryField
 from django.conf.global_settings import LANGUAGES
 from django.contrib.auth.admin import User
 
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes import generic
+
 DAY_CHOICES = (
     (u'MON', u'Monday'),
     (u'TUE', u'Tuesday'),
@@ -30,6 +33,7 @@ class Series(models.Model):
     status   = models.CharField(max_length=3, choices=SERIES_CHOICES)
     locked   = models.BooleanField(default=False)
     locker   = models.ForeignKey(User, blank=True, null=True, verbose_name='Locked By')
+    image    = generic.GenericRelation('Image')
 
     class Meta:
         verbose_name_plural = 'Series'
@@ -41,6 +45,7 @@ class Season(models.Model):
     season = models.IntegerField()
     locked = models.BooleanField(default=False)
     locker = models.ForeignKey(User, blank=True, null=True, verbose_name='Locked By')
+    image  = generic.GenericRelation('Image')
 
     def __unicode__(self):
         return u'%s - Season %02d' % (self.series, self.season)
@@ -89,5 +94,8 @@ class Role(models.Model):
     start  = models.DateField(verbose_name='First Appearance')
     end    = models.DateField(verbose_name='Last Appearance')
 
-
-
+class Image(models.Model):
+    image          = models.ImageField(upload_to='/')
+    content_type   = models.ForeignKey(ContentType)
+    object_id      = models.PositiveIntegerField()
+    content_object = generic.GenericForeignKey()
