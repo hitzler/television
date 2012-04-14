@@ -5,4 +5,9 @@ Episodes<br />
     {{ episodes }}
 {% endfor %}
 
+{# Grabs all Image objects from Generic Relationship #}
+{% for images in series.image.all %}
+    {{ images }}
+{% endfor %}
+
 </html>
