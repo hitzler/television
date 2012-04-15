@@ -49,6 +49,7 @@ class Series(models.Model):
 
 
 class Season(models.Model):
+    # TODO: Image handling requires slug for all Models it is used in, add slug probably
     series = models.ForeignKey('Series')
     season = models.IntegerField()
     locked = models.BooleanField(default=False)
@@ -118,15 +119,27 @@ class Image(models.Model):
 
 
     def create_path(self):
-        path = os.path.join(MEDIA_ROOT, 'images', self.content_type.name, self.content_object.slug[0], self.content_object.slug)
-        if not os.path.exists(path):
-            os.makedirs(path)
-        return path
+        # Create new path if it doesn't already exist.
+        path = os.path.join('images', self.content_type.name, self.content_object.slug[0], self.content_object.slug)
+        if not os.path.exists(os.path.join(MEDIA_ROOT, path)):
+            os.makedirs(os.path.join(MEDIA_ROOT, path))
+        # Create new filename and check if it already exists.
+        count = itertools.count(1)
+        file = '%s-%s-%02d%s' % (self.content_object.slug, IMAGE_CHOICES[int(self.type)][1] ,count.next(), os.path.splitext(self.image.name)[1])
+        while os.path.exists(os.path.join(MEDIA_ROOT, path, file)):
+            file = '%s-%s-%02d%s' % (self.content_object.slug, IMAGE_CHOICES[int(self.type)][1] ,count.next(), os.path.splitext(self.image.name)[1])
+        return os.path.join(path), file
 
     def save(self, *args, **kwargs):
-        new_path = self.create_path()
-        old_path = os.path.join(MEDIA_ROOT, 'images', self.image.name)
-        shutil.move(old_path, new_path)
+        old_name = self.image.name
+        super(Image, self).save(*args, **kwargs)
+
+        old_path = os.path.join(MEDIA_ROOT, 'images', old_name)
+        new_path, new_file = self.create_path()
+
+        shutil.move(old_path, os.path.join(MEDIA_ROOT, new_path, new_file))
+        self.image = os.path.join(new_path, old_name)
+
         super(Image, self).save(*args, **kwargs)
 
     def __unicode__(self):
