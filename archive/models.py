@@ -1,5 +1,7 @@
 import os
+import itertools
 import shutil
+from television.settings import MEDIA_ROOT
 from django.db import models
 from django_countries import CountryField
 from django.conf.global_settings import LANGUAGES
@@ -107,18 +109,24 @@ class Role(models.Model):
 
 
 class Image(models.Model):
-    image          = models.ImageField(upload_to='images/',)
+    image          = models.ImageField(upload_to='images',)
     type           = models.CharField(max_length=1, choices=IMAGE_CHOICES)
     #uploader       = models.ForeignKey(User, verbose_name='Uploaded By')
     content_type   = models.ForeignKey(ContentType)
     object_id      = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey()
 
+
+    def create_path(self):
+        path = os.path.join(MEDIA_ROOT, 'images', self.content_type.name, self.content_object.slug[0], self.content_object.slug)
+        if not os.path.exists(path):
+            os.makedirs(path)
+        return path
+
     def save(self, *args, **kwargs):
-        super(Image, self).save(*args, **kwargs)
-        slug = 'images/%s/%s%s' % (IMAGE_CHOICES[int(self.type)][1], self.content_object.slug, os.path.splitext(self.image.name)[1])
-        shutil.move(self.image.path, self.image.path[:-len(self.image.name)] + slug)
-        self.image.name = slug
+        new_path = self.create_path()
+        old_path = os.path.join(MEDIA_ROOT, 'images', self.image.name)
+        shutil.move(old_path, new_path)
         super(Image, self).save(*args, **kwargs)
 
     def __unicode__(self):
