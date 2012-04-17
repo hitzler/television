@@ -49,9 +49,9 @@ class Series(models.Model):
 
 
 class Season(models.Model):
-    # TODO: Image handling requires slug for all Models it is used in, add slug probably
     series = models.ForeignKey('Series')
     season = models.IntegerField()
+    slug   = models.SlugField(blank=True, null=True, max_length=255)
     locked = models.BooleanField(default=False)
     locker = models.ForeignKey(User, blank=True, null=True, verbose_name='Locked By')
     image  = generic.GenericRelation('Image')
@@ -59,12 +59,15 @@ class Season(models.Model):
     def __unicode__(self):
         return u'%s - Season %02d' % (self.series, self.season)
 
+    def save(self, *args, **kwargs):
+        self.slug = '%s-season-%02d' % (self.series.slug, self.season)
+        super(Season, self).save(*args, **kwargs)
 
 class Episode(models.Model):
     series  = models.ForeignKey('Series')
     title   = models.CharField(max_length=255)
     slug    = models.SlugField(max_length=255)
-    season  = models.ForeignKey('Season', limit_choices_to={'series': '1'})
+    season  = models.ForeignKey('Season')
     episode = models.IntegerField(default=0)
     airDate = models.DateField()
 
@@ -110,30 +113,21 @@ class Role(models.Model):
 
 
 class Image(models.Model):
-    image          = models.ImageField(upload_to='images',)
+    image          = models.ImageField(upload_to='tmp',)
     type           = models.CharField(max_length=1, choices=IMAGE_CHOICES)
     #uploader       = models.ForeignKey(User, verbose_name='Uploaded By')
     content_type   = models.ForeignKey(ContentType)
     object_id      = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey()
 
-    def create_path(self):
-        # Create new path if it doesn't already exist.
-        path = os.path.join('images', self.content_type.name, self.content_object.slug[0], self.content_object.slug)
-        if not os.path.exists(os.path.join(MEDIA_ROOT, path)):
-            os.makedirs(os.path.join(MEDIA_ROOT, path))
-        # Create new filename and check if it already exists.
-        count = itertools.count(1)
-        file = '%s-%s-%02d%s' % (self.content_object.slug, IMAGE_CHOICES[int(self.type)][1], count.next(), os.path.splitext(self.image.name)[1])
-        while os.path.exists(os.path.join(MEDIA_ROOT, path, file)):
-            file = '%s-%s-%02d%s' % (self.content_object.slug, IMAGE_CHOICES[int(self.type)][1], count.next(), os.path.splitext(self.image.name)[1])
-        return os.path.join(path), file
+    def __unicode__(self):
+        return u'%s - %s' % (self.content_object, self.image.name)
 
     def save(self, *args, **kwargs):
-        old_name = self.image.name
         super(Image, self).save(*args, **kwargs)
-
-        old_path = os.path.join(MEDIA_ROOT, 'images', old_name)
+        print self.content_object
+        old_name = os.path.split(self.image.name)[1]
+        old_path = os.path.join(MEDIA_ROOT, 'tmp', old_name)
         new_path, new_file = self.create_path()
 
         shutil.move(old_path, os.path.join(MEDIA_ROOT, new_path, new_file))
@@ -141,5 +135,14 @@ class Image(models.Model):
 
         super(Image, self).save(*args, **kwargs)
 
-    def __unicode__(self):
-        return u'%s - %s' % (self.content_object, self.image.name)
+    def create_path(self):
+        # Create new path if it doesn't already exist.
+        path = os.path.join('images', self.content_type.name, self.content_object.slug[0], self.content_object.slug)
+        if not os.path.exists(os.path.join(MEDIA_ROOT, path)):
+            os.makedirs(os.path.join(MEDIA_ROOT, path))
+            # Create new filename and check if it already exists.
+        count = itertools.count(1)
+        file = '%s-%s-%02d%s' % (self.content_object.slug, IMAGE_CHOICES[int(self.type)][1], count.next(), os.path.splitext(self.image.name)[1])
+        while os.path.exists(os.path.join(MEDIA_ROOT, path, file)):
+            file = '%s-%s-%02d%s' % (self.content_object.slug, IMAGE_CHOICES[int(self.type)][1], count.next(), os.path.splitext(self.image.name)[1])
+        return os.path.join(path), file
