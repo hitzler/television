@@ -136,11 +136,10 @@ class Image(models.Model):
         super(Image, self).save(*args, **kwargs)
 
     def create_path(self):
-        # Create new path if it doesn't already exist.
         path = os.path.join('images', self.content_type.name, self.content_object.slug[0], self.content_object.slug)
         if not os.path.exists(os.path.join(MEDIA_ROOT, path)):
             os.makedirs(os.path.join(MEDIA_ROOT, path))
-            # Create new filename and check if it already exists.
+
         count = itertools.count(1)
         file = '%s-%s-%02d%s' % (self.content_object.slug, IMAGE_CHOICES[int(self.type)][1], count.next(), os.path.splitext(self.image.name)[1])
         while os.path.exists(os.path.join(MEDIA_ROOT, path, file)):
