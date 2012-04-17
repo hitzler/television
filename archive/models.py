@@ -125,13 +125,11 @@ class Image(models.Model):
 
     def save(self, *args, **kwargs):
         super(Image, self).save(*args, **kwargs)
-        print self.content_object
-        old_name = os.path.split(self.image.name)[1]
-        old_path = os.path.join(MEDIA_ROOT, 'tmp', old_name)
-        new_path, new_file = self.create_path()
 
-        shutil.move(old_path, os.path.join(MEDIA_ROOT, new_path, new_file))
-        self.image = os.path.join(new_path, old_name)
+        old_path = os.path.join(MEDIA_ROOT, 'tmp', os.path.split(self.image.name)[1])
+        new_path = self.create_path()
+        shutil.move(old_path, os.path.join(MEDIA_ROOT, new_path))
+        self.image = new_path
 
         super(Image, self).save(*args, **kwargs)
 
@@ -144,4 +142,4 @@ class Image(models.Model):
         file = '%s-%s-%02d%s' % (self.content_object.slug, IMAGE_CHOICES[int(self.type)][1], count.next(), os.path.splitext(self.image.name)[1])
         while os.path.exists(os.path.join(MEDIA_ROOT, path, file)):
             file = '%s-%s-%02d%s' % (self.content_object.slug, IMAGE_CHOICES[int(self.type)][1], count.next(), os.path.splitext(self.image.name)[1])
-        return os.path.join(path), file
+        return os.path.join(path, file)
