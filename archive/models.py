@@ -126,10 +126,9 @@ class Image(models.Model):
     def save(self, *args, **kwargs):
         super(Image, self).save(*args, **kwargs)
 
-        old_path = os.path.join(MEDIA_ROOT, 'tmp', os.path.split(self.image.name)[1])
-        new_path = self.create_path()
+        old_path   = os.path.join(MEDIA_ROOT, 'tmp', os.path.split(self.image.name)[1])
+        self.image = new_path = self.create_path()
         shutil.move(old_path, os.path.join(MEDIA_ROOT, new_path))
-        self.image = new_path
 
         super(Image, self).save(*args, **kwargs)
 
