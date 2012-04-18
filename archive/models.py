@@ -27,19 +27,20 @@ IMAGE_CHOICES  = ((u'1', 'poster'), (u'2', 'fanart'), (u'3', 'photo'))
 
 
 class Series(models.Model):
-    title    = models.CharField(max_length=255)
-    slug     = models.SlugField(max_length=255)
-    genres   = models.ManyToManyField('Genre')
-    premier  = models.DateField(verbose_name='Date Premiered')
-    airDay   = models.CharField(max_length=3, choices=DAY_CHOICES, verbose_name='Day Aired')
-    airTime  = models.TimeField(verbose_name='Time Aired')
-    network  = models.ForeignKey('Network')
-    country  = CountryField()
-    language = models.CharField(max_length=7, choices=LANGUAGES)
-    status   = models.CharField(max_length=3, choices=SERIES_CHOICES)
-    locked   = models.BooleanField(default=False)
-    locker   = models.ForeignKey(User, blank=True, null=True, verbose_name='Locked By')
-    image    = generic.GenericRelation('Image')
+    title     = models.CharField(max_length=255)
+    slug      = models.SlugField(max_length=255)
+    genres    = models.ManyToManyField('Genre')
+    premier   = models.DateField(verbose_name='Date Premiered')
+    air_day   = models.CharField(max_length=3, choices=DAY_CHOICES, verbose_name='Day Aired')
+    air_time  = models.TimeField(verbose_name='Time Aired')
+    network   = models.ForeignKey('Network')
+    country   = CountryField()
+    language  = models.CharField(max_length=7, choices=LANGUAGES)
+    status    = models.CharField(max_length=3, choices=SERIES_CHOICES)
+    locked    = models.BooleanField(default=False)
+    locker    = models.ForeignKey(User, blank=True, null=True, verbose_name='Locked By')
+    lock_msg  = models.TextField(blank=True, null=True)
+    image     = generic.GenericRelation('Image')
 
     class Meta:
         verbose_name_plural = 'Series'
@@ -49,12 +50,13 @@ class Series(models.Model):
 
 
 class Season(models.Model):
-    series = models.ForeignKey('Series')
-    season = models.IntegerField()
-    slug   = models.SlugField(blank=True, null=True, max_length=255)
-    locked = models.BooleanField(default=False)
-    locker = models.ForeignKey(User, blank=True, null=True, verbose_name='Locked By')
-    image  = generic.GenericRelation('Image')
+    series   = models.ForeignKey('Series')
+    season   = models.IntegerField()
+    slug     = models.SlugField(blank=True, null=True, max_length=255)
+    locked   = models.BooleanField(default=False)
+    locker   = models.ForeignKey(User, blank=True, null=True, verbose_name='Locked By')
+    lock_msg = models.TextField(blank=True, null=True)
+    image    = generic.GenericRelation('Image')
 
     def __unicode__(self):
         return u'%s - Season %02d' % (self.series, self.season)
@@ -64,15 +66,18 @@ class Season(models.Model):
         super(Season, self).save(*args, **kwargs)
 
 class Episode(models.Model):
-    series  = models.ForeignKey('Series')
-    title   = models.CharField(max_length=255)
-    slug    = models.SlugField(max_length=255)
-    season  = models.ForeignKey('Season')
-    episode = models.IntegerField(default=0)
-    airDate = models.DateField()
+    series   = models.ForeignKey('Series')
+    title    = models.CharField(max_length=255)
+    slug     = models.SlugField(max_length=255)
+    season   = models.ForeignKey('Season')
+    episode  = models.IntegerField(default=0)
+    air_date = models.DateField()
+    locked   = models.BooleanField(default=False)
+    locker   = models.ForeignKey(User, blank=True, null=True, verbose_name='Locked By')
+    lock_msg = models.TextField(blank=True, null=True)
 
     class Meta:
-        unique_together = ('series', 'airDate', 'title')
+        unique_together = ('series', 'air_date', 'title')
 
     def __unicode__(self):
         return u'%s S%02dE%02d - %s' % (self.series, self.season.season, self.episode, self.title)
@@ -101,6 +106,7 @@ class Person(models.Model):
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
     birth  = models.DateField()
     death  = models.DateField(blank=True, null=True)
+    image  = generic.GenericRelation('Image')
 
 
 class Role(models.Model):
@@ -110,12 +116,13 @@ class Role(models.Model):
     series = models.ForeignKey('Series')
     start  = models.DateField(verbose_name='First Appearance')
     end    = models.DateField(verbose_name='Last Appearance')
+    image  = generic.GenericRelation('Image')
 
 
 class Image(models.Model):
     image          = models.ImageField(upload_to='tmp',)
-    type           = models.CharField(max_length=1, choices=IMAGE_CHOICES)
-    #uploader       = models.ForeignKey(User, verbose_name='Uploaded By')
+    image_type     = models.CharField(max_length=1, choices=IMAGE_CHOICES)
+    uploader       = models.ForeignKey(User, verbose_name='Uploaded By')
     content_type   = models.ForeignKey(ContentType)
     object_id      = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey()
@@ -133,12 +140,19 @@ class Image(models.Model):
         super(Image, self).save(*args, **kwargs)
 
     def create_path(self):
-        path = os.path.join('images', self.content_type.name, self.content_object.slug[0], self.content_object.slug)
+        if self.content_type.name == 'series' or 'season':
+            image_type = 'series'
+            parent     = self.content_object.series.slug
+        else:
+            image_type = 'person'
+            parent     = self.content_object.person.slug
+        # Make path if it doesn't exist
+        path = os.path.join('images', image_type, parent[0], parent)
         if not os.path.exists(os.path.join(MEDIA_ROOT, path)):
             os.makedirs(os.path.join(MEDIA_ROOT, path))
 
         count = itertools.count(1)
-        file = '%s-%s-%02d%s' % (self.content_object.slug, IMAGE_CHOICES[int(self.type)][1], count.next(), os.path.splitext(self.image.name)[1])
+        file = '%s-%s-%02d%s' % (self.content_object.slug, IMAGE_CHOICES[int(self.image_type)][1], count.next(), os.path.splitext(self.image.name)[1])
         while os.path.exists(os.path.join(MEDIA_ROOT, path, file)):
-            file = '%s-%s-%02d%s' % (self.content_object.slug, IMAGE_CHOICES[int(self.type)][1], count.next(), os.path.splitext(self.image.name)[1])
+            file = '%s-%s-%02d%s' % (self.content_object.slug, IMAGE_CHOICES[int(self.image_type)][1], count.next(), os.path.splitext(self.image.name)[1])
         return os.path.join(path, file)

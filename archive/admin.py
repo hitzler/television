@@ -7,7 +7,7 @@ class SeriesAdmin(admin.ModelAdmin):
             'fields': ('title', 'slug', 'network', 'country', 'language', 'genres')
         }),
         ('Airing Information', {
-            'fields': ('premier', ('airDay', 'airTime'))
+            'fields': ('premier', ('air_day', 'air_time'))
         }),
         ('Lock Options', {
             'classes': ('collapse',),
