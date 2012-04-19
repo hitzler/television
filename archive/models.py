@@ -140,19 +140,40 @@ class Image(models.Model):
         super(Image, self).save(*args, **kwargs)
 
     def create_path(self):
+        # Good Googely Moogely
         if self.content_type.name == 'series' or 'season':
             image_type = 'series'
-            parent     = self.content_object.series.slug
+            if self.content_type.name == 'series':
+                parent = self.content_object.slug
+            else:
+                parent = self.content_object.series.slug
         else:
             image_type = 'person'
-            parent     = self.content_object.person.slug
+            if self.content_type.name == 'person':
+                parent = self.content_object.slug
+            else:
+                parent = self.content_object.person.slug
+
         # Make path if it doesn't exist
         path = os.path.join('images', image_type, parent[0], parent)
         if not os.path.exists(os.path.join(MEDIA_ROOT, path)):
             os.makedirs(os.path.join(MEDIA_ROOT, path))
 
-        count = itertools.count(1)
-        file = '%s-%s-%02d%s' % (self.content_object.slug, IMAGE_CHOICES[int(self.image_type)][1], count.next(), os.path.splitext(self.image.name)[1])
-        while os.path.exists(os.path.join(MEDIA_ROOT, path, file)):
-            file = '%s-%s-%02d%s' % (self.content_object.slug, IMAGE_CHOICES[int(self.image_type)][1], count.next(), os.path.splitext(self.image.name)[1])
+        num = 1
+        file = '%s-%s-%02d%s' % (self.content_object.slug, IMAGE_CHOICES[int(self.image_type)][1], num, os.path.splitext(self.image.name)[1])
+
+        for files in os.listdir(os.path.join(MEDIA_ROOT, path)):
+            if files.startswith(file):
+                num+=1
+                file = '%s-%s-%02d%s' % (self.content_object.slug, IMAGE_CHOICES[int(self.image_type)][1], num, os.path.splitext(self.image.name)[1])
         return os.path.join(path, file)
+
+
+
+
+
+        #count = itertools.count(1)
+        #file = '%s-%s-%02d%s' % (self.content_object.slug, IMAGE_CHOICES[int(self.image_type)][1], count.next(), os.path.splitext(self.image.name)[1])
+        #while os.path.exists(os.path.join(MEDIA_ROOT, path, file)):
+        #    file = '%s-%s-%02d%s' % (self.content_object.slug, IMAGE_CHOICES[int(self.image_type)][1], count.next(), os.path.splitext(self.image.name)[1])
+        #return os.path.join(path, file)
