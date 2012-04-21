@@ -23,7 +23,7 @@ DAY_CHOICES = (
 )
 SERIES_CHOICES = ((u'RUN', u'Running'), (u'END', u'Ended'))
 GENDER_CHOICES = ((u'M', u'Male'), (u'F', u'Female'))
-IMAGE_CHOICES  = ((u'1', 'poster'), (u'2', 'fanart'), (u'3', 'photo'))
+IMAGE_CHOICES  = ((0, 'poster'), (1, 'fanart'), (2, 'photo'))
 
 
 class Series(models.Model):
@@ -64,6 +64,7 @@ class Season(models.Model):
     def save(self, *args, **kwargs):
         self.slug = '%s-season-%02d' % (self.series.slug, self.season)
         super(Season, self).save(*args, **kwargs)
+
 
 class Episode(models.Model):
     series   = models.ForeignKey('Series')
@@ -121,7 +122,7 @@ class Role(models.Model):
 
 class Image(models.Model):
     image          = models.ImageField(upload_to='tmp',)
-    image_type     = models.CharField(max_length=1, choices=IMAGE_CHOICES)
+    image_type     = models.IntegerField(max_length=1, choices=IMAGE_CHOICES)
     uploader       = models.ForeignKey(User, verbose_name='Uploaded By')
     content_type   = models.ForeignKey(ContentType)
     object_id      = models.PositiveIntegerField()
@@ -140,40 +141,29 @@ class Image(models.Model):
         super(Image, self).save(*args, **kwargs)
 
     def create_path(self):
-        # Good Googely Moogely
+        categories = {8:'series', 9:'series', 13:'person', 14:'person'}
+        # Pick category of image
         if self.content_type.name == 'series' or 'season':
-            image_type = 'series'
             if self.content_type.name == 'series':
                 parent = self.content_object.slug
             else:
                 parent = self.content_object.series.slug
-        else:
-            image_type = 'person'
+        elif self.content_type.name == 'person' or 'role':
             if self.content_type.name == 'person':
                 parent = self.content_object.slug
             else:
                 parent = self.content_object.person.slug
 
-        # Make path if it doesn't exist
-        path = os.path.join('images', image_type, parent[0], parent)
+        # Create new path
+        path = os.path.join('images', categories[self.content_type.id], parent[0], parent)
         if not os.path.exists(os.path.join(MEDIA_ROOT, path)):
             os.makedirs(os.path.join(MEDIA_ROOT, path))
 
-        num = 1
-        file = '%s-%s-%02d%s' % (self.content_object.slug, IMAGE_CHOICES[int(self.image_type)][1], num, os.path.splitext(self.image.name)[1])
-
+        # Create new filename
+        num  = 1
+        file = '%s-%s-%02d%s' % (self.content_object.slug, IMAGE_CHOICES[self.image_type][1], num, os.path.splitext(self.image.name)[1])
         for files in os.listdir(os.path.join(MEDIA_ROOT, path)):
             if files.startswith(file):
-                num+=1
-                file = '%s-%s-%02d%s' % (self.content_object.slug, IMAGE_CHOICES[int(self.image_type)][1], num, os.path.splitext(self.image.name)[1])
+                num += 1
+                file = '%s-%s-%02d%s' % (self.content_object.slug, IMAGE_CHOICES[self.image_type][1], num, os.path.splitext(self.image.name)[1])
         return os.path.join(path, file)
-
-
-
-
-
-        #count = itertools.count(1)
-        #file = '%s-%s-%02d%s' % (self.content_object.slug, IMAGE_CHOICES[int(self.image_type)][1], count.next(), os.path.splitext(self.image.name)[1])
-        #while os.path.exists(os.path.join(MEDIA_ROOT, path, file)):
-        #    file = '%s-%s-%02d%s' % (self.content_object.slug, IMAGE_CHOICES[int(self.image_type)][1], count.next(), os.path.splitext(self.image.name)[1])
-        #return os.path.join(path, file)
