@@ -1,6 +1,11 @@
 from archive.models import Series
-from django.shortcuts import get_object_or_404, render_to_response
+from django.shortcuts import get_object_or_404
+from django.views.generic import TemplateView
 
-def series_detail(request, series_slug):
-    series = get_object_or_404(Series, slug=series_slug)
-    return render_to_response('index.html',{'series': series})
+
+class SeriesView(TemplateView):
+    template_name = 'index.html'
+
+    def get_context_data(self, **kwargs):
+        series = get_object_or_404(Series, slug=kwargs['series_slug'])
+        return {'series': series}
