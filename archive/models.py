@@ -27,20 +27,23 @@ IMAGE_CHOICES  = ((0, 'poster'), (1, 'fanart'), (2, 'photo'))
 
 
 class Series(models.Model):
-    title     = models.CharField(max_length=255)
-    slug      = models.SlugField(max_length=255)
-    genres    = models.ManyToManyField('Genre')
-    premier   = models.DateField(verbose_name='Date Premiered')
-    air_day   = models.CharField(max_length=3, choices=DAY_CHOICES, verbose_name='Day Aired')
-    air_time  = models.TimeField(verbose_name='Time Aired')
-    network   = models.ForeignKey('Network')
-    country   = CountryField()
-    language  = models.CharField(max_length=7, choices=LANGUAGES)
-    status    = models.CharField(max_length=3, choices=SERIES_CHOICES)
-    locked    = models.BooleanField(default=False)
-    locker    = models.ForeignKey(User, blank=True, null=True, verbose_name='Locked By')
-    lock_msg  = models.TextField(blank=True, null=True)
-    image     = generic.GenericRelation('Image')
+    title       = models.CharField(max_length=255)
+    slug        = models.SlugField(max_length=255)
+    genres      = models.ManyToManyField('Genre')
+    premier     = models.DateField(verbose_name='Date Premiered')
+    air_day     = models.CharField(max_length=3, choices=DAY_CHOICES, verbose_name='Day Aired')
+    air_time    = models.TimeField(verbose_name='Time Aired')
+    network     = models.ForeignKey('Network')
+    country     = CountryField()
+    language    = models.CharField(max_length=7, choices=LANGUAGES)
+    status      = models.CharField(max_length=3, choices=SERIES_CHOICES)
+    description = models.TextField(blank=True, null=True)
+    runtime     = models.IntegerField(default=0)
+    imdb_id     = models.IntegerField(blank=True, max_length=7, default=0000000)
+    locked      = models.BooleanField(default=False)
+    locker      = models.ForeignKey(User, blank=True, null=True, verbose_name='Locked By')
+    lock_msg    = models.TextField(blank=True, null=True)
+    image       = generic.GenericRelation('Image')
 
     class Meta:
         verbose_name_plural = 'Series'
@@ -109,7 +112,8 @@ class Person(models.Model):
     death  = models.DateField(blank=True, null=True)
     image  = generic.GenericRelation('Image')
 
-
+# Add roles to episodes.....
+# Get rid of start end fields and get years from the first ep and last ep they are attached to
 class Role(models.Model):
     name   = models.CharField(max_length=128)
     slug   = models.SlugField(max_length=128)

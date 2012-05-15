@@ -1,19 +1,16 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.conf import settings
-from archive.views import SeriesView
+from archive.views import SeriesView, SeasonView, EpisodeView
 
 
 
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'television.views.home', name='home'),
-    # url(r'^television/', include('television.foo.urls')),
-    #(r'^series/$', SeriesView.as_view()),
-    (r'^series/(?P<series_slug>[-\w]+)', SeriesView.as_view()),
-    #url(r'^series/(?P<series_slug>[-\w]+)', 'archive.views.series_detail'),
+    (r'^series/(?P<series_slug>[-\w]+)/$', SeriesView.as_view()),
+    (r'^series/(?P<series_slug>[-\w]+)/(?P<season>[-\w]+)/$', SeasonView.as_view()),
+    (r'^series/(?P<series_slug>[-\w]+)/(?P<season>[-\w]+)/(?P<episode_slug>[-\w]+)/$', EpisodeView.as_view()),
 
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),

@@ -9,5 +9,8 @@ Episodes<br />
 {% for images in series.image.all %}
     {{ images }}
 {% endfor %}
-
+<br />
+{% for seasons in series.season_set.all %}
+    <a href="/series/{{ series.slug }}/season/{{ seasons.season }}">{{ seasons }}</a>
+{% endfor %}
 </html>
