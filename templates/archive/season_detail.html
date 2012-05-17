@@ -1,0 +1,21 @@
+{% extends 'archive/base.html' %}
+{% block main %}
+<ul class="breadcrumb">
+    <li>
+        <a href="#">Home</a><span class="divider">/</span>
+    </li>
+    <li>
+        <a href="{% url series_browse %}">Series</a><span class="divider">/</span>
+    </li>
+    <li>
+        <a href="{% url series_detail season.series.slug %}">{{ season.series.title }}</a><span class="divider">/</span>
+    </li>
+    <li>
+        Season {{ season.number }}
+    </li>
+</ul>
+
+{% for episodes in season.episode_set.all %}
+    <a href="{% url episode_detail series_slug=season.series.slug season_num=season.number episode_slug=episodes.slug %}">{{ episodes.title }}</a>
+ {% endfor %}
+{% endblock %}
