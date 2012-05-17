@@ -1,4 +1,5 @@
 {% extends 'archive/base.html' %}
+{% load twoDigits %}
 {% block main %}
 <ul class="breadcrumb">
     <li>
@@ -15,7 +16,7 @@
     </li>
 </ul>
 
-{% for episodes in season.episode_set.all %}
-    <a href="{% url episode_detail series_slug=season.series.slug season_num=season.number episode_slug=episodes.slug %}">{{ episodes.title }}</a>
+{% for episode in season.episode_set.all %}
+    <a href="{% url episode_detail series_slug=season.series.slug season_num=season.number episode_slug=episode.slug %}">{{ episode.number|twoDigits }} - {{ episode.title }}<br /></a>
  {% endfor %}
 {% endblock %}

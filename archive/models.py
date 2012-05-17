@@ -74,7 +74,7 @@ class Episode(models.Model):
     title       = models.CharField(max_length=255)
     slug        = models.SlugField(max_length=255)
     season      = models.ForeignKey('Season')
-    episode     = models.IntegerField(default=0)
+    number      = models.IntegerField(default=0)
     air_date    = models.DateField()
     description = models.TextField(blank=True, null=True)
     locked      = models.BooleanField(default=False)
@@ -85,7 +85,7 @@ class Episode(models.Model):
         unique_together = ('series', 'air_date', 'title')
 
     def __unicode__(self):
-        return u'%s S%02dE%02d - %s' % (self.series, self.season.number, self.episode, self.title)
+        return u'%s S%02dE%02d - %s' % (self.series, self.season.number, self.number, self.title)
 
 
 class Genre(models.Model):
