@@ -1,6 +1,6 @@
 import os
-import itertools
 import shutil
+
 from television.settings import MEDIA_ROOT
 from django.db import models
 from django_countries import CountryField
@@ -54,7 +54,7 @@ class Series(models.Model):
 
 class Season(models.Model):
     series   = models.ForeignKey('Series')
-    season   = models.IntegerField()
+    number   = models.IntegerField(default=1)
     slug     = models.SlugField(blank=True, null=True, max_length=255)
     locked   = models.BooleanField(default=False)
     locker   = models.ForeignKey(User, blank=True, null=True, verbose_name='Locked By')
@@ -62,34 +62,38 @@ class Season(models.Model):
     image    = generic.GenericRelation('Image')
 
     def __unicode__(self):
-        return u'%s - Season %02d' % (self.series, self.season)
+        return u'%s - Season %02d' % (self.series, self.number)
 
     def save(self, *args, **kwargs):
-        self.slug = '%s-season-%02d' % (self.series.slug, self.season)
+        self.slug = '%s-season-%02d' % (self.series.slug, self.number)
         super(Season, self).save(*args, **kwargs)
 
 
 class Episode(models.Model):
-    series   = models.ForeignKey('Series')
-    title    = models.CharField(max_length=255)
-    slug     = models.SlugField(max_length=255)
-    season   = models.ForeignKey('Season')
-    episode  = models.IntegerField(default=0)
-    air_date = models.DateField()
-    locked   = models.BooleanField(default=False)
-    locker   = models.ForeignKey(User, blank=True, null=True, verbose_name='Locked By')
-    lock_msg = models.TextField(blank=True, null=True)
+    series      = models.ForeignKey('Series')
+    title       = models.CharField(max_length=255)
+    slug        = models.SlugField(max_length=255)
+    season      = models.ForeignKey('Season')
+    episode     = models.IntegerField(default=0)
+    air_date    = models.DateField()
+    description = models.TextField(blank=True, null=True)
+    locked      = models.BooleanField(default=False)
+    locker      = models.ForeignKey(User, blank=True, null=True, verbose_name='Locked By')
+    lock_msg    = models.TextField(blank=True, null=True)
 
     class Meta:
         unique_together = ('series', 'air_date', 'title')
 
     def __unicode__(self):
-        return u'%s S%02dE%02d - %s' % (self.series, self.season.season, self.episode, self.title)
+        return u'%s S%02dE%02d - %s' % (self.series, self.season.number, self.episode, self.title)
 
 
 class Genre(models.Model):
     title = models.CharField(max_length=70)
     slug  = models.CharField(max_length=70)
+
+    class Meta:
+        ordering = ['title']
 
     def __unicode__(self):
         return u'%s' % self.title
