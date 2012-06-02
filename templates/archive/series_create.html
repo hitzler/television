@@ -21,9 +21,16 @@
                 <div class="control-group{% if field.errors %} error{% endif %}">
                     <label class="control-label" for="id_{{ field.name }}">{{ field.label }}</label>
                     <div class="controls">
-                        {{ field }}
+                        {# Silly way to get prepended and appended inputs #}
+                        {% if field.name == "imdb_id" %}
+                            <div class="input-prepend"><span class="add-on">tt</span>{{ field }}</div>
+                        {% elif field.name == "runtime" %}
+                            <div class="input-append">{{ field }}<span class="add-on">minutes</span></div>
+                        {% else %}
+                            {{ field }}
+                        {% endif %}
                         {% if field.help_text %}<span class="help-block">{{ field.help_text }}</span>{% endif %}
-                        {% if field.errors %}<span class="help-inline">{{ field.errors.as_text|slice:"1:" }}</span>{% endif %}
+                        {% if field.errors %}<span class="help-inline">{{ field.errors.as_text|slice:"2:" }}</span>{% endif %}
                     </div>
                 </div>
             {% endif %}
