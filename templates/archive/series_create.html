@@ -1,0 +1,38 @@
+{% extends 'archive/base.html' %}
+{% block main %}
+
+
+
+
+
+<form action="{% url create_series %}" class="form-horizontal" method="post">
+    <fieldset>
+        {% if form.non_field.errors %}
+            <div class="alert alert-error">
+                <button class="close" data-dismiss="alert">&times;</button>
+                <strong>Problem!</strong> {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+        {% csrf_token %}
+        {% for field in form %}
+            {% if field.is_hidden %}
+                {{ field }}
+            {% else %}
+                <div class="control-group{% if field.errors %} error{% endif %}">
+                    <label class="control-label" for="id_{{ field.name }}">{{ field.label }}</label>
+                    <div class="controls">
+                        {{ field }}
+                        {% if field.help_text %}<span class="help-inline">{{ field.help_text }}</span>{% endif %}
+                        {% if field.errors %}<span class="help-inline">{{ field.errors.as_text }}</span>{% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Create series</button>
+            <button class="btn">Cancel</button>
+        </div>
+    </fieldset>
+</form>
+
+{% endblock %}
