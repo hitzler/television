@@ -22,8 +22,8 @@
                     <label class="control-label" for="id_{{ field.name }}">{{ field.label }}</label>
                     <div class="controls">
                         {{ field }}
-                        {% if field.help_text %}<span class="help-inline">{{ field.help_text }}</span>{% endif %}
-                        {% if field.errors %}<span class="help-inline">{{ field.errors.as_text }}</span>{% endif %}
+                        {% if field.help_text %}<span class="help-block">{{ field.help_text }}</span>{% endif %}
+                        {% if field.errors %}<span class="help-inline">{{ field.errors.as_text|slice:"1:" }}</span>{% endif %}
                     </div>
                 </div>
             {% endif %}
